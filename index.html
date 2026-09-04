@@ -286,7 +286,7 @@
   <link rel="stylesheet" href="v150.css?v=150">
   <link rel="stylesheet" href="v151.css?v=151">
   <link rel="stylesheet" href="v158.css?v=158">
-  <link rel="stylesheet" href="v165.css?v=165">
+  <link rel="stylesheet" href="v166.css?v=166">
 </head>
 <body>
   <div class="app-launch-screen" role="dialog" aria-labelledby="launchTitle" aria-describedby="launchHint">
@@ -730,7 +730,7 @@
         <div class="journal-section-heading"><div><span>Display</span><h3 id="settingsExperienceTitle">Experience</h3></div></div>
         <label class="settings-row"><span><strong>Animated backgrounds</strong><small>Snow, stars, and rarity motion effects.</small></span><input id="settingsAnimationToggle" type="checkbox" checked></label>
         <label class="settings-row"><span><strong>Reduce motion</strong><small>Keep the artwork still and transitions gentle.</small></span><input id="settingsReduceMotionToggle" type="checkbox"></label>
-        <label class="settings-row"><span><strong>Default tracker view</strong><small>Used when you open a rarity for the first time.</small></span><select id="settingsDefaultView"><option value="card">Card</option><option value="list">List</option><option value="sheet">Sheet</option></select></label>
+        <label class="settings-row"><span><strong>Default tracker view</strong><small>Used when you open a rarity for the first time.</small></span><select id="settingsDefaultView"><option value="card">Card</option><option value="list">List</option><option value="compact">Compact</option><option value="sheet">Sheet</option></select></label>
         <label class="settings-row"><span><strong>Sprite event notices</strong><small>Show an in-app notice when Mastery Monday or another configured Sprite event begins.</small></span><input id="settingsEventNoticesToggle" type="checkbox" checked></label>
       </section>
       <section class="settings-card settings-mode-guide" aria-labelledby="settingsModeGuideTitle">
@@ -738,6 +738,7 @@
         <p class="settings-mode-notice">Tap a mode below whenever you need a reminder of what it does.</p>
         <details><summary>Card View</summary><p>Full artwork cards with collection and mastery controls.</p></details>
         <details><summary>List View</summary><p>A compact vertical layout with a smaller image and the same tracking controls.</p></details>
+        <details><summary>Compact View</summary><p>Groups each Sprite into a short row with its artwork and quick Base, Gold, and special-variant controls.</p></details>
         <details><summary>Sheet View</summary><p>The smallest checklist layout, built for scanning many Sprite variants quickly.</p></details>
         <details><summary>Sprite Assistant</summary><p>Track one Match or a multi-match Session, Quick Add what you found, then review before finalizing.</p></details>
         <details><summary>Collection History</summary><p>See the Sprites finalized during each Match.</p></details>
@@ -860,6 +861,7 @@
               <select id="spriteViewSelect" aria-label="Choose Sprite view">
                 <option value="card">Card</option>
                 <option value="list">List</option>
+                <option value="compact">Compact</option>
                 <option value="sheet">Sheet</option>
               </select>
             </label>
@@ -1364,7 +1366,7 @@
   <script src="sprite-events-v140.js?v=140"></script>
   <script src="state-schema-v127.js?v=127"></script>
 <script src="feature-config-v129.js?v=158"></script>
-<script src="app.js?v=165"></script>
+<script src="app.js?v=166"></script>
   <script src="cloud-config-v128.js?v=128"></script>
   <script src="cloud-v128.js?v=150"></script>
   <script src="profile-v133.js?v=150"></script>

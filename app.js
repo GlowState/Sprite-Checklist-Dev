@@ -79,7 +79,7 @@
     return {
       animations:saved.animations !== false,
       reduceMotion:saved.reduceMotion === true,
-      defaultView:['card','list','sheet'].includes(saved.defaultView) ? saved.defaultView : 'card',
+      defaultView:['card','list','compact','sheet'].includes(saved.defaultView) ? saved.defaultView : 'card',
       eventNotices:saved.eventNotices !== false,
       trackerFilter:['all','uncollected','collected','mastered'].includes(saved.trackerFilter) ? saved.trackerFilter : 'all',
       collapseVariants:saved.collapseVariants === true,
@@ -1833,8 +1833,10 @@
     const saved = spriteViewModes.global || spriteViewModes[activeRarity];
     const sheetAvailable = !isUnownedPage() && ['public','preview'].includes(featureAccess('sheetView'));
     if (saved === 'sheet' && sheetAvailable) return 'sheet';
+    if (saved === 'compact') return 'compact';
     if (saved === 'list') return 'list';
     if (!saved && experienceSettings.defaultView === 'sheet' && sheetAvailable) return 'sheet';
+    if (!saved && experienceSettings.defaultView === 'compact') return 'compact';
     if (!saved && experienceSettings.defaultView === 'list') return 'list';
     return 'card';
   }
@@ -1842,8 +1844,10 @@
   function applySpriteViewMode() {
     const mode = currentSpriteViewMode();
     const listView = mode === 'list';
+    const compactView = mode === 'compact';
     const sheetView = mode === 'sheet';
     document.body.classList.toggle('sprite-list-view',listView);
+    document.body.classList.toggle('sprite-compact-view',compactView);
     document.body.classList.toggle('sprite-sheet-view',sheetView);
     const sheetAvailable = !isUnownedPage() && ['public','preview'].includes(featureAccess('sheetView'));
     spriteViewSelect.value = mode;
@@ -1856,7 +1860,7 @@
 
   function setSpriteViewMode(mode) {
     const sheetAvailable = !isUnownedPage() && ['public','preview'].includes(featureAccess('sheetView'));
-    const normalizedMode = mode === 'list' ? 'list' : (mode === 'sheet' && sheetAvailable ? 'sheet' : 'card');
+    const normalizedMode = mode === 'list' ? 'list' : (mode === 'compact' ? 'compact' : (mode === 'sheet' && sheetAvailable ? 'sheet' : 'card'));
     spriteViewModes = { global:normalizedMode };
     try { localStorage.setItem(VIEW_MODES_KEY,JSON.stringify(spriteViewModes)); } catch { /* The choice can remain active for this visit. */ }
     noteLocalSaveChange('preferences');
@@ -5204,6 +5208,96 @@
     return section;
   }
 
+  function syncCompactVariantControl(control,family,variant) {
+    const current = variantState(family.id,variant.id);
+    const view = variantView(family,variant);
+    const familyName = familyView(family).name || 'Sprite';
+    const collected = control.querySelector('.compact-collect-button');
+    const mastered = control.querySelector('.compact-master-button');
+    collected.setAttribute('aria-pressed',String(Boolean(current.collected)));
+    collected.setAttribute('aria-label',`${current.collected ? 'Remove' : 'Mark'} ${view.name || 'variant'} ${familyName} ${current.collected ? 'from collection' : 'as collected'}`);
+    mastered.setAttribute('aria-pressed',String(Boolean(current.mastered)));
+    mastered.setAttribute('aria-label',`${current.mastered ? 'Remove mastery from' : 'Mark'} ${view.name || 'variant'} ${familyName}${current.mastered ? '' : ' as mastered'}`);
+  }
+
+  function compactVariantControl(family,variant) {
+    const view = variantView(family,variant);
+    const control = document.createElement('div');
+    control.className = 'compact-variant-control';
+
+    const buttons = document.createElement('div');
+    buttons.className = 'compact-state-buttons';
+    const collected = document.createElement('button');
+    collected.type = 'button';
+    collected.className = 'compact-collect-button';
+    collected.innerHTML = '<span aria-hidden="true">✓</span>';
+    collected.addEventListener('click',() => {
+      commitSheetStateChange(family,variant,'collected');
+      if (isUnownedPage() || (experienceSettings.trackerFilter || 'all') !== 'all') renderCollections();
+      else syncCompactVariantControl(control,family,variant);
+    });
+
+    const mastered = document.createElement('button');
+    mastered.type = 'button';
+    mastered.className = 'compact-master-button sheet-crown-button';
+    mastered.innerHTML = crownSvg();
+    mastered.addEventListener('click',() => {
+      const becomingMastered = !variantState(family.id,variant.id).mastered;
+      commitSheetStateChange(family,variant,'mastered');
+      if (isUnownedPage() || (experienceSettings.trackerFilter || 'all') !== 'all') renderCollections();
+      else syncCompactVariantControl(control,family,variant);
+      if (becomingMastered) celebrateSheetCrown(mastered);
+    });
+    buttons.append(collected,mastered);
+
+    const label = document.createElement('span');
+    label.className = 'compact-variant-label';
+    label.textContent = view.name || 'Variant';
+    control.append(buttons,label);
+    syncCompactVariantControl(control,family,variant);
+    return control;
+  }
+
+  function makeCompactCollection(family,rowVariants) {
+    const group = familyView(family);
+    const section = document.createElement('section');
+    section.className = 'compact-collection';
+    section.dataset.familyId = family.id;
+    section.dataset.rarity = familyRarity(family);
+
+    const baseVariant = rowVariants.find((variant) => variant.id === 'base' || /^base$/i.test(variantView(family,variant).name || '')) || rowVariants[0];
+    const thumb = document.createElement('span');
+    thumb.className = 'compact-sprite-thumb';
+    const source = displayImageSource(variantView(family,baseVariant).image);
+    if (source) {
+      const image = document.createElement('img');
+      image.src = source;
+      image.alt = `${group.name || 'Sprite'} artwork`;
+      image.width = 96;
+      image.height = 96;
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      image.addEventListener('error',() => {
+        image.remove();
+        thumb.textContent = (group.name || 'S').slice(0,1).toUpperCase();
+      },{ once:true });
+      thumb.appendChild(image);
+    } else {
+      thumb.textContent = (group.name || 'S').slice(0,1).toUpperCase();
+    }
+
+    const details = document.createElement('div');
+    details.className = 'compact-sprite-details';
+    const title = document.createElement('h3');
+    title.textContent = group.name || 'Sprite';
+    const controls = document.createElement('div');
+    controls.className = 'compact-variant-controls';
+    rowVariants.forEach((variant) => controls.appendChild(compactVariantControl(family,variant)));
+    details.append(title,controls);
+    section.append(thumb,details);
+    return section;
+  }
+
   function makeCard(family,variant,{ eager = false } = {}) {
     const current = variantState(family.id,variant.id);
     const view = variantView(family,variant);
@@ -5734,6 +5828,12 @@
         if (currentSpriteViewMode() === 'sheet') {
           if (!rowVariants.length) return;
           collectionsEl.appendChild(makeSheetCollection(family,rowVariants));
+          appended += 1;
+          return;
+        }
+        if (currentSpriteViewMode() === 'compact' && !spriteEditMode) {
+          if (!rowVariants.length) return;
+          collectionsEl.appendChild(makeCompactCollection(family,rowVariants));
           appended += 1;
           return;
         }
@@ -6529,8 +6629,8 @@
 
   function sanitizeViewModes(value) {
     if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-    const savedGlobal = ['list','card','sheet'].includes(value.global) ? value.global : '';
-    const migrated = savedGlobal || pageTabs.map((page) => value[page]).find((mode) => ['list','card','sheet'].includes(mode));
+    const savedGlobal = ['list','card','compact','sheet'].includes(value.global) ? value.global : '';
+    const migrated = savedGlobal || pageTabs.map((page) => value[page]).find((mode) => ['list','card','compact','sheet'].includes(mode));
     return migrated ? { global:migrated } : {};
   }
 
@@ -6539,7 +6639,7 @@
     return {
       animations:source.animations !== false,
       reduceMotion:source.reduceMotion === true,
-      defaultView:['card','list','sheet'].includes(source.defaultView) ? source.defaultView : 'card',
+      defaultView:['card','list','compact','sheet'].includes(source.defaultView) ? source.defaultView : 'card',
       eventNotices:source.eventNotices !== false,
       trackerFilter:['all','uncollected','collected','mastered'].includes(source.trackerFilter) ? source.trackerFilter : 'all',
       collapseVariants:source.collapseVariants === true,
