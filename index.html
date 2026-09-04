@@ -286,7 +286,7 @@
   <link rel="stylesheet" href="v150.css?v=150">
   <link rel="stylesheet" href="v151.css?v=151">
   <link rel="stylesheet" href="v158.css?v=158">
-  <link rel="stylesheet" href="v166.css?v=166">
+  <link rel="stylesheet" href="v167.css?v=167">
 </head>
 <body>
   <div class="app-launch-screen" role="dialog" aria-labelledby="launchTitle" aria-describedby="launchHint">
@@ -866,6 +866,7 @@
               </select>
             </label>
             <button class="share-sheet-button" id="shareSheetBtn" type="button" hidden>Share sheet</button>
+            <button class="page-add-sprite-group-button" id="pageAddSpriteGroupBtn" type="button" hidden>＋ Add Sprite Group</button>
           </div>
         </header>
         <nav class="tracker-filter-bar" id="trackerFilterBar" aria-label="Filter current tracker">
@@ -906,6 +907,10 @@
     <span>Admin</span>
   </button>
 
+  <button class="floating-publish-button" id="floatingPublishBtn" type="button" aria-label="Publish pending Sprite changes" title="Publish changes" hidden>
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m5 12.5 4.3 4.3L19.5 6.6"></path></svg>
+  </button>
+
   <dialog class="admin-center-dialog" id="adminCenterDialog" aria-labelledby="adminCenterTitle">
     <section class="admin-center-panel">
       <header class="admin-center-head">
@@ -923,7 +928,7 @@
         <button class="admin-primary-action" id="adminAddGroupBtn" type="button"><strong>＋ Add new Sprite group</strong><span>Creates a new group with its Base card.</span></button>
         <button id="adminEditPageBtn" type="button"><strong>✎ Edit Sprites on this page</strong><span>Rename, upload artwork, add variants, delete, or reorder.</span></button>
         <button id="adminDustBtn" type="button"><strong>✦ Edit Sprite Dust</strong><span>Set the five extraction rewards for this rarity.</span></button>
-        <button class="admin-publish-action" id="adminPublishBtn" type="button"><strong>Publish changes</strong><span>Send all pending catalog edits to GitHub.</span></button>
+        <button class="admin-publish-action" id="adminPublishBtn" type="button"><strong>Publish to everyone</strong><span>Send the current Sprite catalog to the public tracker.</span></button>
       </div>
       <footer class="admin-center-footer">
         <button id="adminExitEditBtn" type="button">Exit editing</button>
@@ -980,17 +985,17 @@
 
   <dialog class="reset-dialog publish-sprites-dialog" id="publishSpritesDialog">
     <form id="publishSpritesForm">
-      <h2>Publish sprite changes</h2>
-      <p>This publishes Sprite name edits, new groups, card additions and order, uploaded images, rarity percentages, Sprite Dust levels, and Season Vault changes.</p>
+      <h2>Publish to everyone</h2>
+      <p>This sends Sprite names, new groups, variants, artwork, rarity percentages, Sprite Dust levels, and Season Archive changes to the public tracker.</p>
       <label class="add-sprite-label" for="githubTokenInput">GitHub token</label>
       <input id="githubTokenInput" type="password" required autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste token here">
       <p class="publish-token-help">
-        <a href="https://github.com/settings/personal-access-tokens/new?name=Sprite%20Tracker%20Publisher&amp;description=Publishes%20sprite%20card%20changes%20to%20Real-Sprite-Checklist&amp;target_name=SnorkyTheBeard&amp;expires_in=90&amp;contents=write" target="_blank" rel="noopener">Create a fine-grained GitHub token</a>, select only <strong>Real-Sprite-Checklist</strong>, and give <strong>Contents</strong> read-and-write access. The token is kept only in this browser tab.
+        <a href="https://github.com/settings/personal-access-tokens/new?name=Sprite%20Tracker%20Publisher&amp;description=Publishes%20sprite%20card%20changes%20to%20Real-Sprite-Checklist&amp;target_name=GlowState&amp;expires_in=90&amp;contents=write" target="_blank" rel="noopener">Create a fine-grained GitHub token</a>, select only <strong>Real-Sprite-Checklist</strong>, and give <strong>Contents</strong> read-and-write access. The token is kept only in this browser tab.
       </p>
       <p class="publish-sprites-status" id="publishSpritesStatus" role="status" aria-live="polite"></p>
       <div class="dialog-actions">
         <button id="cancelPublishSpritesBtn" type="button">Close</button>
-        <button class="primary-btn" id="confirmPublishSpritesBtn" type="submit">Publish changes</button>
+        <button class="primary-btn" id="confirmPublishSpritesBtn" type="submit">Publish to everyone</button>
       </div>
     </form>
   </dialog>
@@ -1366,7 +1371,7 @@
   <script src="sprite-events-v140.js?v=140"></script>
   <script src="state-schema-v127.js?v=127"></script>
 <script src="feature-config-v129.js?v=158"></script>
-<script src="app.js?v=166"></script>
+<script src="app.js?v=167"></script>
   <script src="cloud-config-v128.js?v=128"></script>
   <script src="cloud-v128.js?v=150"></script>
   <script src="profile-v133.js?v=150"></script>

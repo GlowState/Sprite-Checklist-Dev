@@ -156,10 +156,14 @@
   const GITHUB_TOKEN_SESSION_KEY = `galaxy_sprite_tracker_github_token_${STORAGE_SCOPE}`;
   const GITHUB_API_VERSION = '2026-03-10';
   const GITHUB_PUBLISH_TARGET = {
-    owner:'SnorkyTheBeard',
-    repo:'Sprite-Checklist-Dev',
+    owner:'GlowState',
+    repo:'Real-Sprite-Checklist',
     branch:'main'
   };
+
+  function githubPublishTargetKey() {
+    return `${GITHUB_PUBLISH_TARGET.owner}/${GITHUB_PUBLISH_TARGET.repo}@${GITHUB_PUBLISH_TARGET.branch}`;
+  }
 
   function featureDefinition(featureId) {
     const value = featureDefinitions[featureId];
@@ -458,7 +462,8 @@
       families:saved?.families && typeof saved.families === 'object' ? saved.families : {},
       rarityDustLevels:saved?.rarityDustLevels && typeof saved.rarityDustLevels === 'object' && !Array.isArray(saved.rarityDustLevels) ? saved.rarityDustLevels : {},
       customFamilies:Array.isArray(saved?.customFamilies) ? saved.customFamilies : [],
-      lastPublishedSnapshot:saved?.lastPublishedSnapshot || ''
+      lastPublishedSnapshot:saved?.lastPublishedSnapshot || '',
+      lastPublishedTarget:saved?.lastPublishedTarget || ''
     };
   }
 
@@ -976,6 +981,7 @@
   const vaultUnlockSpriteName = document.getElementById('vaultUnlockSpriteName');
   const floatingHomeBtn = document.getElementById('floatingHomeBtn');
   const floatingAdminToggle = document.getElementById('floatingAdminToggle');
+  const floatingPublishBtn = document.getElementById('floatingPublishBtn');
   const adminCenterDialog = document.getElementById('adminCenterDialog');
   const adminCenterRarity = document.getElementById('adminCenterRarity');
   const adminCenterStatus = document.getElementById('adminCenterStatus');
@@ -1010,6 +1016,7 @@
   const addSpriteFamilyId = document.getElementById('addSpriteFamilyId');
   const newSpriteName = document.getElementById('newSpriteName');
   const addSpriteGroupBtn = document.getElementById('addSpriteGroupBtn');
+  const pageAddSpriteGroupBtn = document.getElementById('pageAddSpriteGroupBtn');
   const addSpriteGroupDialog = document.getElementById('addSpriteGroupDialog');
   const addSpriteGroupForm = document.getElementById('addSpriteGroupForm');
   const newSpriteGroupName = document.getElementById('newSpriteGroupName');
@@ -4338,24 +4345,34 @@
     const hasNewGroups = Array.isArray(spriteCardEdits.customFamilies) && spriteCardEdits.customFamilies.length > 0;
     const hasRarityDustChanges = Object.keys(spriteCardEdits.rarityDustLevels || {}).length > 0;
     const hasChanges = hasFamilyChanges || hasNewGroups || hasRarityDustChanges;
-    return Boolean(hasChanges && spriteCardEdits.lastPublishedSnapshot !== spriteCardEditsFingerprint());
+    const publishedToEveryone = spriteCardEdits.lastPublishedTarget === githubPublishTargetKey();
+    return Boolean(hasChanges && (
+      spriteCardEdits.lastPublishedSnapshot !== spriteCardEditsFingerprint()
+      || !publishedToEveryone
+    ));
   }
 
   function updatePublishButton() {
     if (!publishSpritesBtn) return;
     const pending = hasUnpublishedSpriteChanges();
+    if (floatingPublishBtn) {
+      const available = DEV_BUILD || ownerPreviewActive();
+      floatingPublishBtn.hidden = !available || !pending;
+      floatingPublishBtn.setAttribute('aria-label',pending ? 'Publish pending Sprite changes' : 'No Sprite changes to publish');
+      floatingPublishBtn.title = pending ? 'Publish changes' : 'Everything is published';
+    }
     publishSpritesBtn.disabled = !pending;
-    publishSpritesBtn.textContent = pending ? 'Publish sprite changes' : 'No changes to publish';
+    publishSpritesBtn.textContent = pending ? 'Publish to everyone' : 'Everything is published';
     if (adminPublishBtn) {
       adminPublishBtn.disabled = !pending;
       const title = adminPublishBtn.querySelector('strong');
       const note = adminPublishBtn.querySelector('span');
-      if (title) title.textContent = pending ? 'Publish changes' : 'Everything is published';
-      if (note) note.textContent = pending ? 'Send all pending catalog edits to GitHub.' : 'There are no unpublished catalog changes.';
+      if (title) title.textContent = pending ? 'Publish to everyone' : 'Everything is published';
+      if (note) note.textContent = pending ? 'Send the current Sprite catalog to the public tracker.' : 'There are no unpublished catalog changes.';
     }
     if (adminCenterStatus) {
       adminCenterStatus.dataset.pending = String(pending);
-      adminCenterStatus.textContent = pending ? 'Unpublished changes are ready.' : 'Catalog is up to date.';
+      adminCenterStatus.textContent = pending ? 'Changes are ready to publish for everyone.' : 'The public catalog is up to date.';
     }
   }
 
@@ -4576,7 +4593,7 @@
   function githubPublishError(error) {
     if (error?.status === 401) return 'GitHub did not accept that token. Check it and try again.';
     if (error?.status === 403) return 'That token cannot write to this repository. Give it Contents: Read and write permission.';
-    if (error?.status === 404) return 'The repository or branch was not available to that token. Make sure Sprite-Checklist-Clean is selected.';
+    if (error?.status === 404) return 'The repository or branch was not available to that token. Make sure Real-Sprite-Checklist is selected.';
     if (error?.status === 409 || error?.status === 422) return 'The repository changed while publishing. Wait a moment, then try again.';
     return error?.message || 'The sprite changes could not be published.';
   }
@@ -4633,6 +4650,7 @@
       familyCardEdits(familyId).publishedAdded = (Array.isArray(family.addedVariants) ? family.addedVariants : []).map((variant) => variant.id);
     });
     spriteCardEdits.lastPublishedSnapshot = spriteCardEditsFingerprint();
+    spriteCardEdits.lastPublishedTarget = githubPublishTargetKey();
     saveSpriteCardEdits();
     renderAll();
     return commit.sha;
@@ -7786,7 +7804,7 @@
 
   function setSpriteEditMode(enabled) {
     if (isUnownedPage() || appView === APP_VIEW_VAULT) return showToast('Open a rarity page in Current Tracker to edit Sprite cards.');
-    if (enabled && currentSpriteViewMode() === 'sheet') {
+    if (enabled && ['sheet','compact'].includes(currentSpriteViewMode())) {
       spriteViewModes = { global:'card' };
       try { localStorage.setItem(VIEW_MODES_KEY,JSON.stringify(spriteViewModes)); } catch { /* Editing can continue in card view. */ }
       applySpriteViewMode();
@@ -7805,7 +7823,17 @@
   function updatePageModeControls() {
     const unownedPage = isUnownedPage();
     const vaultPage = appView === APP_VIEW_VAULT;
+    const canManageCatalog = DEV_BUILD || ownerPreviewActive();
+    const editableRarityPage = appView === APP_VIEW_TRACKER
+      && !unownedPage
+      && !vaultPage
+      && seasonView === CURRENT_SEASON_ID;
     document.body.classList.toggle('unowned-page',unownedPage);
+    if (pageAddSpriteGroupBtn) {
+      pageAddSpriteGroupBtn.hidden = !canManageCatalog || !editableRarityPage || huntMode.active;
+      pageAddSpriteGroupBtn.textContent = `＋ Add ${activeRarity} Group`;
+      pageAddSpriteGroupBtn.setAttribute('aria-label',`Add a new Sprite group to the ${activeRarity} page`);
+    }
     if (appView === APP_VIEW_SETTINGS) {
       spriteEditorToggle.hidden = false;
       addSpriteGroupBtn.hidden = false;
@@ -8060,6 +8088,11 @@
   floatingAdminToggle?.addEventListener('click',() => {
     openAdminCenter();
   });
+  floatingPublishBtn?.addEventListener('click',openPublishSpritesDialog);
+  pageAddSpriteGroupBtn?.addEventListener('click',() => {
+    if (!spriteEditMode) setSpriteEditMode(true);
+    openAddSpriteGroupDialog();
+  });
   document.getElementById('closeAdminCenterBtn')?.addEventListener('click',() => adminCenterDialog.close());
   adminCenterDialog?.addEventListener('click',(event) => { if (event.target === adminCenterDialog) adminCenterDialog.close(); });
   document.getElementById('adminEditPageBtn')?.addEventListener('click',() => openAdminPage(selectedAdminRarity()));
@@ -8094,10 +8127,14 @@
   });
   window.addEventListener('sprite-account-bridge-ready',() => {
     renderFloatingAdmin();
+    updatePageModeControls();
+    updatePublishButton();
     if (appView === APP_VIEW_HUNTS) loadHottestDrop({ force:true });
   });
   window.addEventListener('sprite-cloud-session-changed',() => {
     renderFloatingAdmin();
+    updatePageModeControls();
+    updatePublishButton();
     if (appView === APP_VIEW_HUNTS) loadHottestDrop({ force:true });
   });
   spriteDustBalanceBtn.addEventListener('click',() => setAppView(APP_VIEW_DUST));
