@@ -36,7 +36,8 @@
     settings:'Settings controls background motion, reduced motion, your default tracker view, account access, and DEV owner tools.'
   });
   const FEATURE_STATES = new Set(['hidden','coming-soon','preview','public']);
-  const DEV_BUILD = /dev/i.test(document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content || '');
+  const DEV_BUILD = /dev/i.test(document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content || '')
+    || /(?:^|\/)sprite-checklist-dev(?:\/|$)/i.test(location.pathname);
   const featureConfig = window.SPRITE_FEATURE_CONFIG && typeof window.SPRITE_FEATURE_CONFIG === 'object'
     ? window.SPRITE_FEATURE_CONFIG
     : { ownerUserIds:[],features:{} };
@@ -5510,6 +5511,9 @@
     rarityPercentage.hidden = !view.rarityPercentage;
     const title = document.createElement('h4');
     title.textContent = view.name || '';
+    const titleLength = Array.from(title.textContent).length;
+    title.classList.toggle('sprite-variant-name-long',titleLength > 10);
+    title.classList.toggle('sprite-variant-name-extra-long',titleLength > 17);
     title.hidden = !view.name;
     variantLine.append(rarityPercentage,title);
 
@@ -8435,7 +8439,7 @@
                             : (isUnownedPage() ? `#${missingView}` : `#${activeRarity.toLowerCase()}`)))))));
   if (location.hash !== activeHash) history.replaceState({ rarity:activeRarity },'',activeHash);
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=168',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=169',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
   }
   const signalAppRendered = () => window.dispatchEvent(new Event('sprite-app-rendered'));
   if (document.fonts?.ready) {
