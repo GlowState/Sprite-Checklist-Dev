@@ -13,7 +13,7 @@
 */
 window.SPRITE_FEATURE_CONFIG = Object.freeze({
   ownerUserIds:Object.freeze([
-    /* '00000000-0000-0000-0000-000000000000' */
+    'af180676-a16d-472a-802f-1a546c02b560'
   ]),
   features:Object.freeze({
     spriteVault:Object.freeze({

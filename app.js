@@ -36,8 +36,6 @@
     settings:'Settings controls background motion, reduced motion, your default tracker view, account access, and DEV owner tools.'
   });
   const FEATURE_STATES = new Set(['hidden','coming-soon','preview','public']);
-  const DEV_BUILD = /dev/i.test(document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content || '')
-    || /(?:^|\/)sprite-checklist-dev(?:\/|$)/i.test(location.pathname);
   const featureConfig = window.SPRITE_FEATURE_CONFIG && typeof window.SPRITE_FEATURE_CONFIG === 'object'
     ? window.SPRITE_FEATURE_CONFIG
     : { ownerUserIds:[],features:{} };
@@ -4358,7 +4356,7 @@
     if (!publishSpritesBtn) return;
     const pending = hasUnpublishedSpriteChanges();
     if (floatingPublishBtn) {
-      const available = DEV_BUILD || ownerPreviewActive();
+      const available = ownerPreviewActive();
       floatingPublishBtn.hidden = !available || !pending;
       floatingPublishBtn.setAttribute('aria-label',pending ? 'Publish pending Sprite changes' : 'No Sprite changes to publish');
       floatingPublishBtn.title = pending ? 'Publish changes' : 'Everything is published';
@@ -6395,7 +6393,7 @@
 
   function renderFloatingAdmin() {
     if (!floatingAdminToggle) return;
-    const available = DEV_BUILD || ownerPreviewActive();
+    const available = ownerPreviewActive();
     floatingAdminToggle.hidden = !available;
     floatingAdminToggle.setAttribute('aria-pressed',String(spriteEditMode));
     const label = 'Open Admin Center';
@@ -6415,7 +6413,7 @@
     const trigger = Array.from(document.querySelectorAll('[data-help-key]')).find((button) => button.dataset.helpKey === key);
     contextHelpTitle.textContent = trigger?.getAttribute('aria-label')?.replace(/^How\s+/i,'') || 'How it works';
     contextHelpCopy.textContent = helpCopyFor(key);
-    const canEdit = DEV_BUILD || ownerPreviewActive();
+    const canEdit = ownerPreviewActive();
     contextHelpEditor.hidden = !canEdit;
     contextHelpSave.hidden = !canEdit;
     contextHelpInput.value = helpCopyFor(key);
@@ -6423,7 +6421,7 @@
   }
 
   function saveContextHelp() {
-    if (!currentHelpKey || (!DEV_BUILD && !ownerPreviewActive())) return;
+    if (!currentHelpKey || !ownerPreviewActive()) return;
     const copy = String(contextHelpInput.value || '').trim().replace(/\s+/g,' ').slice(0,360);
     if (!copy) return showToast('Add a short help description first.');
     experienceSettings.helpCopy = { ...cleanHelpCopy(experienceSettings.helpCopy),[currentHelpKey]:copy };
@@ -6580,7 +6578,7 @@
   function renderSettings() {
     applyExperienceSettings();
     const adminCard = document.querySelector('.settings-admin-card');
-    if (adminCard) adminCard.hidden = !DEV_BUILD && !ownerPreviewActive();
+    if (adminCard) adminCard.hidden = !ownerPreviewActive();
     const status = window.SPRITE_ACCOUNT_BRIDGE?.status?.();
     settingsSaveStatus.textContent = status?.signedIn
       ? (status.lastSyncedAt ? `Last save at ${formatSettingsSaveTime(status.lastSyncedAt)}` : 'Signed in · your first automatic save is being prepared.')
@@ -7828,7 +7826,7 @@
   function updatePageModeControls() {
     const unownedPage = isUnownedPage();
     const vaultPage = appView === APP_VIEW_VAULT;
-    const canManageCatalog = DEV_BUILD || ownerPreviewActive();
+    const canManageCatalog = ownerPreviewActive();
     const editableRarityPage = appView === APP_VIEW_TRACKER
       && !unownedPage
       && !vaultPage
@@ -8439,7 +8437,7 @@
                             : (isUnownedPage() ? `#${missingView}` : `#${activeRarity.toLowerCase()}`)))))));
   if (location.hash !== activeHash) history.replaceState({ rarity:activeRarity },'',activeHash);
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=169',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=170',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
   }
   const signalAppRendered = () => window.dispatchEvent(new Event('sprite-app-rendered'));
   if (document.fonts?.ready) {
