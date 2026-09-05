@@ -72,6 +72,7 @@
   const MISSING_VIEW_KEY = `galaxy_sprite_tracker_missing_view_v1_${STORAGE_SCOPE}`;
   const EXPERIENCE_SETTINGS_KEY = `galaxy_sprite_tracker_experience_v1_${STORAGE_SCOPE}`;
   const WELCOME_KEY = `galaxy_sprite_tracker_welcome_v1_${STORAGE_SCOPE}`;
+  const LAUNCH_SKIP_KEY = `galaxy_sprite_tracker_skip_launch_v1_${STORAGE_SCOPE}`;
   const EVENT_NOTICE_KEY = `galaxy_sprite_tracker_event_notices_v1_${STORAGE_SCOPE}`;
 
   function loadExperienceSettings() {
@@ -7786,7 +7787,7 @@
     };
     const resetKeys = [
       PROGRESS_KEY,VIEW_MODES_KEY,MISSING_VIEW_KEY,EXPERIENCE_SETTINGS_KEY,
-      WELCOME_KEY,EVENT_NOTICE_KEY,SEASON_VIEW_KEY,
+      WELCOME_KEY,LAUNCH_SKIP_KEY,EVENT_NOTICE_KEY,SEASON_VIEW_KEY,
       PRE_RESTORE_PROGRESS_KEY,HUNT_MODE_KEY,HUNT_CART_KEY,HUNT_HISTORY_KEY,
       SEARCH_TARGETS_KEY,QUICK_ADD_HISTORY_KEY,DUST_LEDGER_KEY,JOURNAL_FALLBACK_KEY,
       FUTURE_STATE_KEY,LEGACY_PROGRESS_KEY
@@ -8434,7 +8435,7 @@
                             : (isUnownedPage() ? `#${missingView}` : `#${activeRarity.toLowerCase()}`)))))));
   if (location.hash !== activeHash) history.replaceState({ rarity:activeRarity },'',activeHash);
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=165',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=168',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
   }
   const signalAppRendered = () => window.dispatchEvent(new Event('sprite-app-rendered'));
   if (document.fonts?.ready) {

@@ -38,6 +38,7 @@
       transition:opacity .16s ease,visibility .16s ease;
     }
     html.app-launch-gated .app-launch-screen { display:grid; }
+    html.app-launch-skipped .app-launch-screen { display:none !important; }
     html.app-launch-gated.app-ready .app-launch-screen {
       visibility:hidden;
       opacity:0;
@@ -67,6 +68,8 @@
     .app-launch-mark span { color:#83ddff;font:900 10px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:.15em;text-transform:uppercase; }
     .app-launch-mark p { min-height:46px;margin:4px 0 8px;color:#bdcadb;font:600 14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
     .app-launch-mark button { min-height:50px;padding:0 24px;color:#07101f;border:1px solid #d6f8ff;border-radius:999px;background:linear-gradient(135deg,#d5f8ff,#67d5ff 60%,#9f82ff);box-shadow:0 10px 28px rgba(31,157,225,.28);font:900 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .app-launch-choice { display:flex;align-items:center;justify-content:center;gap:9px;min-height:34px;margin-top:2px;color:#d8e2ef;font:700 13px/1.3 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer; }
+    .app-launch-choice input { width:20px;height:20px;margin:0;accent-color:#f5c542; }
     html.app-launch-gated.app-ready .app-shell,
     html.app-launch-gated.app-ready .page-backdrop,
     html.app-launch-gated.app-ready .page-motion-layer {
@@ -87,9 +90,14 @@
     (() => {
       const root = document.documentElement;
       root.classList.add('app-launch-gated');
+      const launchScope = (decodeURIComponent(location.pathname.split('/').filter(Boolean)[0] || 'root').toLowerCase().replace(/[^a-z0-9_-]+/g,'-') || 'root');
+      const launchSkipKey = `galaxy_sprite_tracker_skip_launch_v1_${launchScope}`;
+      let skipLaunch = false;
+      try { skipLaunch = localStorage.getItem(launchSkipKey) === '1'; } catch { /* Continue with the launch screen when storage is unavailable. */ }
+      if (skipLaunch) root.classList.add('app-launch-skipped');
       let rendered = false;
-      let userStarted = false;
-      let minimumShown = false;
+      let userStarted = skipLaunch;
+      let minimumShown = skipLaunch;
       let revealed = false;
 
       const reveal = () => {
@@ -113,8 +121,18 @@
         ];
         const hint = document.getElementById('launchHint');
         const button = document.getElementById('launchStartBtn');
+        const stopShowing = document.getElementById('launchStopShowing');
         if (hint) hint.textContent = hints[Math.floor(Math.random() * hints.length)];
-        button?.addEventListener('click',() => { userStarted = true;button.disabled = true;button.textContent = rendered ? 'Opening…' : 'Loading…';reveal(); });
+        if (stopShowing) stopShowing.checked = skipLaunch;
+        button?.addEventListener('click',() => {
+          if (stopShowing?.checked) {
+            try { localStorage.setItem(launchSkipKey,'1'); } catch { /* The current launch can still continue. */ }
+          }
+          userStarted = true;
+          button.disabled = true;
+          button.textContent = rendered ? 'Opening…' : 'Loading…';
+          reveal();
+        });
       },{ once:true });
       window.setTimeout(() => { minimumShown = true;reveal(); },650);
       window.setTimeout(() => { rendered = true;reveal(); },3500);
@@ -125,7 +143,7 @@
   <meta name="application-name" content="My Sprite Tracker">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Sprite Tracker">
+  <meta name="apple-mobile-web-app-title" content="Sprite Dev">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="My Sprite Tracker">
   <meta property="og:url" content="https://snorkythebeard.github.io/Real-Sprite-Checklist/">
@@ -286,7 +304,7 @@
   <link rel="stylesheet" href="v150.css?v=150">
   <link rel="stylesheet" href="v151.css?v=151">
   <link rel="stylesheet" href="v158.css?v=158">
-  <link rel="stylesheet" href="v167.css?v=167">
+  <link rel="stylesheet" href="v168.css?v=168">
 </head>
 <body>
   <div class="app-launch-screen" role="dialog" aria-labelledby="launchTitle" aria-describedby="launchHint">
@@ -295,6 +313,10 @@
       <span>My Sprite Tracker</span>
       <h1 id="launchTitle">Ready to hunt?</h1>
       <p id="launchHint">Preparing your Sprite collection…</p>
+      <label class="app-launch-choice" for="launchStopShowing">
+        <input id="launchStopShowing" type="checkbox">
+        <span>Stop showing this screen</span>
+      </label>
       <button id="launchStartBtn" type="button">Start Hunting!</button>
     </div>
   </div>
@@ -1371,7 +1393,7 @@
   <script src="sprite-events-v140.js?v=140"></script>
   <script src="state-schema-v127.js?v=127"></script>
 <script src="feature-config-v129.js?v=158"></script>
-<script src="app.js?v=167"></script>
+<script src="app.js?v=168"></script>
   <script src="cloud-config-v128.js?v=128"></script>
   <script src="cloud-v128.js?v=150"></script>
   <script src="profile-v133.js?v=150"></script>
