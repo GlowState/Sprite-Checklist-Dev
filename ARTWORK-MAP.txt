@@ -1,0 +1,66 @@
+Sprite Tracker artwork staging — not an app update
+
+Approved page backgrounds
+--------------------------
+assets/page-backgrounds/page-bg-rare-final.jpeg
+  Source: 497C859B-6CE1-4C67-8EA5-092F81B723E3.jpeg
+  Assignment: final Rare page background
+
+assets/page-backgrounds/page-bg-mythic-gold.jpeg
+  Source: DD9C4D1B-0D16-4ECA-839D-F0E8CF1A4D11(1).jpeg
+  Assignment: selected gold background; intended for Mythic
+
+assets/page-backgrounds/page-bg-sprite-assistant-garden.jpeg
+  Source: F29085E4-3012-4563-9065-C881C234CA2E(1).jpeg
+  Assignment: Sprite Assistant page
+
+Approved pedestal art
+---------------------
+assets/pedestals/pedestal-rare-blue.jpeg
+  Source: 48735C7A-E307-4FF5-AA6C-18381460CF38(1).jpeg
+  Assignment: Rare
+
+assets/pedestals/pedestal-epic-purple.jpeg
+  Source: 01358A80-F9E3-42CA-97EE-E08132AE93DA(1).jpeg
+  Assignment: Epic
+
+assets/pedestals/pedestal-legendary-orange.jpeg
+  Source: ECCCF84D-374D-4E20-B310-A573CC380B0F(1).jpeg
+  Assignment: Legendary
+
+assets/pedestals/pedestal-mythic-gold.jpeg
+  Source: 5C09FD29-6A4F-4528-BFBD-849C6007A13A(1).jpeg
+  Assignment: Mythic
+
+Additional approved page backgrounds
+-------------------------------------
+assets/page-backgrounds/page-bg-unmastered.jpeg
+  Source: 0EE2ED5B-7ED9-42BE-BAF8-63AF172A3375.jpeg
+  Assignment: Unmastered page
+
+assets/page-backgrounds/page-bg-unowned.jpeg
+  Source: EAC78562-1A2A-48AA-84D4-2001D224CC5C.jpeg
+  Assignment: Unowned page
+
+Additional approved variant wells
+----------------------------------
+assets/variant-backgrounds/variant-well-loot-hacker.jpeg
+  Source: C9D10B2D-82E5-417E-8627-87CF3B654C45.jpeg
+  Assignment: new Loot Hacker Sprite variant background
+
+assets/variant-backgrounds/variant-well-gold.jpeg
+  Source: 22774AC3-B22E-4931-8DD8-33E5C4001BDE(1).jpeg
+  Assignment: Gold Sprite variant background
+
+assets/variant-backgrounds/variant-well-base.jpeg
+  Source: A8A88B74-B2FD-4981-9C21-BC8B46A64C41(1).jpeg
+  Assignment: Base variant Sprite background
+
+Not included
+------------
+The other gold background was intentionally disregarded. Purple/orange
+backgrounds without a final page assignment are being held for later.
+
+No app files, catalog data, or existing artwork were changed by this staging
+package. The new files are staged only; they are not wired into the app yet.
+More approved art can be added before the final integration update.
