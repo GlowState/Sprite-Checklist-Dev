@@ -521,8 +521,15 @@
     gem:'assets/variant-backgrounds/variant-well-gem.webp',
     quack:'assets/variant-backgrounds/variant-well-quack.webp',
     holofoil:'assets/variant-backgrounds/variant-well-holofoil.webp',
-    'cheat-master':'assets/variant-backgrounds/variant-well-cheat-master.webp'
+    'cheat-master':'assets/variant-backgrounds/variant-well-cheat-master.webp',
+    fortune:'assets/variant-backgrounds/variant-well-fortune.webp',
+    cursed:'assets/variant-backgrounds/variant-well-cursed.webp',
+    'loot-hacker':'assets/variant-backgrounds/variant-well-loot-hacker.jpeg',
+    'bounty-hunter':'assets/variant-backgrounds/variant-well-bounty-hunter.webp',
+    'trick-or-treat':'assets/variant-backgrounds/variant-well-trick-or-treat.webp'
   };
+
+  const NEW_NAMED_VARIANT_BACKGROUNDS = new Set(['fortune','cursed','loot-hacker','bounty-hunter','trick-or-treat']);
 
   const FEATURED_VARIANT_BACKGROUNDS = Object.freeze({
     'custom-john-wick':'assets/variant-backgrounds/variant-well-john-wick.webp?v=92'
@@ -4874,9 +4881,10 @@
     if (featured) return featured;
     if (!design.theme.useVariantBackgrounds) return '';
     const backgrounds = design.theme.variantBackgrounds || {};
+    const nameKey = normalizeVariantBackgroundKey(family ? variantView(family,variant).name : variant.name);
+    if (NEW_NAMED_VARIANT_BACKGROUNDS.has(nameKey) && hasOwn(backgrounds,nameKey)) return backgrounds[nameKey] || '';
     const idKey = normalizeVariantBackgroundKey(variant.id);
     if (idKey && hasOwn(backgrounds,idKey)) return backgrounds[idKey] || '';
-    const nameKey = normalizeVariantBackgroundKey(variant.name);
     return nameKey && hasOwn(backgrounds,nameKey) ? backgrounds[nameKey] || '' : '';
   }
 
@@ -8483,7 +8491,7 @@
                             : (isUnownedPage() ? `#${missingView}` : `#${activeRarity.toLowerCase()}`)))))));
   if (location.hash !== activeHash) history.replaceState({ rarity:activeRarity },'',activeHash);
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=171',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=172',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
   }
   const signalAppRendered = () => window.dispatchEvent(new Event('sprite-app-rendered'));
   if (document.fonts?.ready) {

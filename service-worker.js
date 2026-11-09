@@ -1,4 +1,4 @@
-const CACHE = 'galaxy-sprite-checklist-v171';
+const CACHE = 'galaxy-sprite-checklist-v172';
 const CORE = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ const CORE = [
   './sprite-events-v140.js?v=140',
   './state-schema-v127.js?v=127',
   './feature-config-v129.js?v=158',
-  './app.js?v=171',
+  './app.js?v=172',
   './cloud-config-v128.js?v=128',
   './cloud-v128.js?v=150',
   './profile-v133.js?v=150',
@@ -55,6 +55,11 @@ const CORE = [
   './assets/variant-backgrounds/variant-well-quack.webp',
   './assets/variant-backgrounds/variant-well-holofoil.webp',
   './assets/variant-backgrounds/variant-well-cheat-master.webp',
+  './assets/variant-backgrounds/variant-well-fortune.webp',
+  './assets/variant-backgrounds/variant-well-cursed.webp',
+  './assets/variant-backgrounds/variant-well-loot-hacker.jpeg',
+  './assets/variant-backgrounds/variant-well-bounty-hunter.webp',
+  './assets/variant-backgrounds/variant-well-trick-or-treat.webp',
   './assets/variant-backgrounds/variant-well-john-wick.webp?v=92',
   './published-assets/sprite-custom-john-wick-base.webp',
   './assets/header/main-header.webp?v=3'
