@@ -2190,7 +2190,7 @@
     return {
       name:hasOwn(cardEdits,'name') ? cardEdits.name : (hasOwn(custom,'name') ? custom.name : family.name),
       visible:hasOwn(custom,'visible') ? Boolean(custom.visible) : true,
-      deleted:Boolean(custom.deleted),
+      deleted:Boolean(custom.deleted || cardEdits.deletedGroup),
       seasonId,
       archived:seasonId !== CURRENT_SEASON_ID,
       customBg:Boolean(custom.customBg),
@@ -2422,47 +2422,75 @@
   }
 
   function openAddSpriteGroupDialog() {
+    if (!ownerPreviewActive() || !rarities.includes(activeRarity) || seasonView !== CURRENT_SEASON_ID) return;
     newSpriteGroupName.value = '';
     addSpriteGroupRarity.textContent = activeRarity;
     addSpriteGroupDialog.showModal();
     setTimeout(() => newSpriteGroupName.focus(),0);
   }
 
-  function addSpriteGroup(name) {
+  function batchSpriteNames(value) {
+    return String(value || '').split(/\r?\n/).map(normalizeSpriteName).filter(Boolean);
+  }
+
+  function addSpriteGroups(names) {
     const previousEdits = cloneJson(spriteCardEdits);
-    const id = uniqueFamilyId(name);
     spriteCardEdits.customFamilies ||= [];
-    spriteCardEdits.customFamilies.push({
-      id,
-      name,
-      rarity:activeRarity,
-      seasonId:CURRENT_SEASON_ID,
-      variants:[{ id:'base', name:'Base', image:'' }]
+    const ids = names.map((name) => {
+      const id = uniqueFamilyId(name);
+      spriteCardEdits.customFamilies.push({
+        id,
+        name,
+        rarity:activeRarity,
+        seasonId:CURRENT_SEASON_ID,
+        variants:[{ id:'base', name:'Base', image:'' }]
+      });
+      familyCardEdits(id).order = ['base'];
+      return id;
     });
-    familyCardEdits(id).order = ['base'];
     if (!saveCardEditOrRestore(previousEdits)) return null;
-    return id;
+    return ids;
+  }
+
+  function canEditSpriteGroup(family) {
+    return ownerPreviewActive() && spriteEditMode && appView === APP_VIEW_TRACKER
+      && !isUnownedPage() && seasonView === CURRENT_SEASON_ID
+      && familyRarity(family) === activeRarity && !familyView(family).deleted;
+  }
+
+  function deleteSpriteGroup(family) {
+    if (!canEditSpriteGroup(family)) return;
+    const name = familyView(family).name || 'this Sprite group';
+    if (!window.confirm(`Delete ${name} and all its Sprite cards? The removal will apply to everyone when you publish. Saved collection progress is kept.`)) return;
+    const previousEdits = cloneJson(spriteCardEdits);
+    familyCardEdits(family.id).deletedGroup = true;
+    if (!saveCardEditOrRestore(previousEdits)) return;
+    renderAll();
+    showToast(`${name} deleted from your draft`);
   }
 
   function openAddSpriteDialog(familyId) {
     const family = allFamilies().find((item) => item.id === familyId);
-    if (!family) return;
+    if (!family || !canEditSpriteGroup(family)) return;
     addSpriteFamilyId.value = familyId;
     newSpriteName.value = '';
-    document.getElementById('addSpriteDialogTitle').textContent = `Add sprite to ${familyView(family).name || 'this row'}`;
+    document.getElementById('addSpriteDialogTitle').textContent = `Add Sprites to ${familyView(family).name || 'this group'}`;
     addSpriteDialog.showModal();
     setTimeout(() => newSpriteName.focus(),0);
   }
 
-  function addSpriteCard(family,name) {
+  function addSpriteCards(family,names) {
     const previousEdits = cloneJson(spriteCardEdits);
     const edits = familyCardEdits(family.id);
-    const id = uniqueVariantId(family,name);
     const currentOrder = orderedVariants(family).map((variant) => variant.id);
-    edits.added.push({ id, name, image:'' });
-    edits.order = [...currentOrder,id];
+    const ids = names.map((name) => {
+      const id = uniqueVariantId(family,name);
+      edits.added.push({ id, name, image:'' });
+      return id;
+    });
+    edits.order = [...currentOrder,...ids];
     if (!saveCardEditOrRestore(previousEdits)) return null;
-    return id;
+    return ids;
   }
 
   function saveVariantOrder(family,order,message = 'Sprite cards moved') {
@@ -3101,6 +3129,7 @@
   async function spriteEditsForPublishing() {
     const edits = cloneJson(spriteCardEdits);
     for (const family of Object.values(edits.families || {})) {
+      if (family?.deletedGroup) continue;
       for (const [variantId,value] of Object.entries(family?.images || {})) {
         if (!isSpriteImageReference(value)) continue;
         try { family.images[variantId] = await readSpriteImage(value); }
@@ -4341,6 +4370,7 @@
       || (edits.dustLevels && typeof edits.dustLevels === 'object' && Object.keys(edits.dustLevels).length)
       || (edits.archived && typeof edits.archived === 'object' && Object.keys(edits.archived).length)
       || hasOwn(edits,'archivedGroup')
+      || Boolean(edits.deletedGroup)
     ));
     const hasNewGroups = Array.isArray(spriteCardEdits.customFamilies) && spriteCardEdits.customFamilies.length > 0;
     const hasRarityDustChanges = Object.keys(spriteCardEdits.rarityDustLevels || {}).length > 0;
@@ -4500,8 +4530,8 @@
       familyDesign.name = familyRecord.name;
       familyDesign.rarity = familyRecord.rarity;
       familyDesign.seasonId = familyRecord.seasonId;
-      familyDesign.visible = true;
-      familyDesign.deleted = false;
+      familyDesign.visible ??= true;
+      familyDesign.deleted ??= false;
       familyDesign.variants ||= {};
       familyRecord.variants.forEach((variant) => {
         if (!variant?.id) return;
@@ -4514,6 +4544,11 @@
       if (!rawEdits || typeof rawEdits !== 'object' || Array.isArray(rawEdits)) return;
       const edits = rawEdits;
       const family = nextDesign.families[familyId] ||= {};
+      if (edits.deletedGroup) {
+        family.deleted = true;
+        return;
+      }
+      if (family.deleted) return;
       family.variants ||= {};
       family.addedVariants = Array.isArray(family.addedVariants) ? family.addedVariants : [];
       if (hasOwn(edits,'name')) family.name = normalizeSpriteName(edits.name);
@@ -5933,10 +5968,19 @@
         headerActions.className = 'collection-head-actions';
         addButton.type = 'button';
         addButton.className = 'add-sprite-button';
-        addButton.textContent = '+ Add sprite';
+        addButton.textContent = '+ Add sprites';
         addButton.hidden = seasonView !== CURRENT_SEASON_ID;
         addButton.addEventListener('click',() => openAddSpriteDialog(family.id));
         headerActions.append(meta,addButton);
+        if (canEditSpriteGroup(family)) {
+          const deleteGroupButton = document.createElement('button');
+          deleteGroupButton.type = 'button';
+          deleteGroupButton.className = 'add-sprite-button delete-sprite-group-button';
+          deleteGroupButton.textContent = 'Delete group';
+          deleteGroupButton.setAttribute('aria-label',`Delete ${group.name || 'this Sprite'} group`);
+          deleteGroupButton.addEventListener('click',() => deleteSpriteGroup(family));
+          headerActions.append(deleteGroupButton);
+        }
         header.append(titleWrap,headerActions);
 
         const row = document.createElement('div');
@@ -8353,29 +8397,31 @@
   addSpriteForm.addEventListener('submit',(event) => {
     event.preventDefault();
     const family = allFamilies().find((item) => item.id === addSpriteFamilyId.value);
-    const name = newSpriteName.value.trim();
-    if (!family || !name) return;
-    const id = addSpriteCard(family,name);
-    if (!id) return;
+    const names = batchSpriteNames(newSpriteName.value);
+    if (!family || !canEditSpriteGroup(family)) return;
+    if (!names.length) return showToast('Enter at least one Sprite name.');
+    const ids = addSpriteCards(family,names);
+    if (!ids) return;
     addSpriteDialog.close();
     renderTabs();
     renderCollections();
     updateCounters();
-    showToast(`${name} sprite card added — tap its image area to upload artwork`);
+    showToast(`${ids.length} Sprite ${ids.length === 1 ? 'card' : 'cards'} added. Tap a card to upload artwork.`);
   });
   document.getElementById('cancelAddSpriteBtn').addEventListener('click',() => addSpriteDialog.close());
   addSpriteGroupForm.addEventListener('submit',(event) => {
     event.preventDefault();
-    const name = newSpriteGroupName.value.trim();
-    if (!name) return;
-    const id = addSpriteGroup(name);
-    if (!id) return;
+    if (!ownerPreviewActive() || !rarities.includes(activeRarity) || seasonView !== CURRENT_SEASON_ID) return;
+    const names = batchSpriteNames(newSpriteGroupName.value);
+    if (!names.length) return showToast('Enter at least one group name.');
+    const ids = addSpriteGroups(names);
+    if (!ids) return;
     addSpriteGroupDialog.close();
     renderTabs();
     renderCollections();
     updateCounters();
-    document.querySelector(`.collection[data-family-id="${id}"]`)?.scrollIntoView({ behavior:'smooth', block:'center' });
-    showToast(`${name} added to ${activeRarity} — upload the Base sprite image`);
+    document.querySelector(`.collection[data-family-id="${ids[0]}"]`)?.scrollIntoView({ behavior:'smooth', block:'center' });
+    showToast(`${ids.length} Sprite ${ids.length === 1 ? 'group' : 'groups'} added to ${activeRarity}`);
   });
   document.getElementById('cancelAddSpriteGroupBtn').addEventListener('click',() => addSpriteGroupDialog.close());
   window.addEventListener('hashchange',() => {
@@ -8437,7 +8483,7 @@
                             : (isUnownedPage() ? `#${missingView}` : `#${activeRarity.toLowerCase()}`)))))));
   if (location.hash !== activeHash) history.replaceState({ rarity:activeRarity },'',activeHash);
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./service-worker.js?v=170',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
+    navigator.serviceWorker.register('./service-worker.js?v=171',{ updateViaCache:'none' }).then((registration) => registration.update()).catch(() => {});
   }
   const signalAppRendered = () => window.dispatchEvent(new Event('sprite-app-rendered'));
   if (document.fonts?.ready) {

@@ -85,6 +85,21 @@
       html.app-launch-gated.app-ready .page-backdrop,
       html.app-launch-gated.app-ready .page-motion-layer { animation:none; }
     }
+    .add-sprite-dialog .sprite-batch-names {
+      box-sizing: border-box;
+      width: 100%;
+      min-height: 7rem;
+      padding: .7rem;
+      border: 1px solid #77839a;
+      border-radius: .65rem;
+      background: #141d30;
+      color: #fff;
+      font: inherit;
+      font-size: max(16px, 1em);
+      resize: vertical;
+    }
+    .sprite-edit-mode .collection-head-actions { flex-wrap: wrap; }
+    .sprite-edit-mode .delete-sprite-group-button { color: #ffb9b9; }
   </style>
   <script>
     (() => {
@@ -980,27 +995,27 @@
 
   <dialog class="reset-dialog add-sprite-dialog" id="addSpriteDialog">
     <form id="addSpriteForm">
-      <h2 id="addSpriteDialogTitle">Add sprite card</h2>
+      <h2 id="addSpriteDialogTitle">Add Sprite cards</h2>
       <input id="addSpriteFamilyId" type="hidden">
-      <label class="add-sprite-label" for="newSpriteName">Sprite card name</label>
-      <input id="newSpriteName" type="text" maxlength="50" required placeholder="For example: Chrome">
-      <p>After adding it, tap the image area or drop an image onto it.</p>
+      <label class="add-sprite-label" for="newSpriteName">Sprite names (one per line)</label>
+      <textarea id="newSpriteName" class="sprite-batch-names" rows="4" required placeholder="Chrome&#10;Gold"></textarea>
+      <p>After adding the cards, tap an image area or drop artwork onto it.</p>
       <div class="dialog-actions">
         <button id="cancelAddSpriteBtn" type="button">Cancel</button>
-        <button class="primary-btn" type="submit">Add sprite</button>
+        <button class="primary-btn" type="submit">Add Sprites</button>
       </div>
     </form>
   </dialog>
 
   <dialog class="reset-dialog add-sprite-dialog" id="addSpriteGroupDialog">
     <form id="addSpriteGroupForm">
-      <h2>Add sprite group</h2>
-      <p>This creates the group on the <strong id="addSpriteGroupRarity">Rare</strong> page with a Base sprite card.</p>
-      <label class="add-sprite-label" for="newSpriteGroupName">Sprite group name</label>
-      <input id="newSpriteGroupName" type="text" maxlength="60" required placeholder="For example: Ice Sprite">
+      <h2>Add Sprite groups</h2>
+      <p>Each new group on the <strong id="addSpriteGroupRarity">Rare</strong> page starts with a Base card.</p>
+      <label class="add-sprite-label" for="newSpriteGroupName">Group names (one per line)</label>
+      <textarea id="newSpriteGroupName" class="sprite-batch-names" rows="4" required placeholder="Ice Sprite&#10;Fire Sprite"></textarea>
       <div class="dialog-actions">
         <button id="cancelAddSpriteGroupBtn" type="button">Cancel</button>
-        <button class="primary-btn" type="submit">Add group</button>
+        <button class="primary-btn" type="submit">Add Groups</button>
       </div>
     </form>
   </dialog>
@@ -1008,7 +1023,7 @@
   <dialog class="reset-dialog publish-sprites-dialog" id="publishSpritesDialog">
     <form id="publishSpritesForm">
       <h2>Publish to everyone</h2>
-      <p>This sends Sprite names, new groups, variants, artwork, rarity percentages, Sprite Dust levels, and Season Archive changes to the public tracker.</p>
+      <p>This sends pending Sprite catalog changes, including group deletions, to the public tracker.</p>
       <label class="add-sprite-label" for="githubTokenInput">GitHub token</label>
       <input id="githubTokenInput" type="password" required autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste token here">
       <p class="publish-token-help">
@@ -1393,7 +1408,7 @@
   <script src="sprite-events-v140.js?v=140"></script>
   <script src="state-schema-v127.js?v=127"></script>
 <script src="feature-config-v129.js?v=158"></script>
-<script src="app.js?v=170"></script>
+<script src="app.js?v=171"></script>
   <script src="cloud-config-v128.js?v=128"></script>
   <script src="cloud-v128.js?v=150"></script>
   <script src="profile-v133.js?v=150"></script>

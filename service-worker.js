@@ -1,4 +1,4 @@
-const CACHE = 'galaxy-sprite-checklist-v170';
+const CACHE = 'galaxy-sprite-checklist-v171';
 const CORE = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ const CORE = [
   './sprite-events-v140.js?v=140',
   './state-schema-v127.js?v=127',
   './feature-config-v129.js?v=158',
-  './app.js?v=170',
+  './app.js?v=171',
   './cloud-config-v128.js?v=128',
   './cloud-v128.js?v=150',
   './profile-v133.js?v=150',
