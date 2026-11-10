@@ -42,7 +42,12 @@ text: {
     cube: "assets/variant-backgrounds/variant-well-cube.webp",
     gem: "assets/variant-backgrounds/variant-well-gem.webp",
     quack: "assets/variant-backgrounds/variant-well-quack.webp",
-    holofoil: "assets/variant-backgrounds/variant-well-holofoil.webp"
+    holofoil: "assets/variant-backgrounds/variant-well-holofoil.webp",
+    fortune: "assets/variant-backgrounds/variant-well-fortune.webp",
+    cursed: "assets/variant-backgrounds/variant-well-cursed.webp",
+    "loot-hacker": "assets/variant-backgrounds/variant-well-loot-hacker.jpeg",
+    "bounty-hunter": "assets/variant-backgrounds/variant-well-bounty-hunter.webp",
+    "trick-or-treat": "assets/variant-backgrounds/variant-well-trick-or-treat.webp"
   },
 
   groupBackgrounds: {},
