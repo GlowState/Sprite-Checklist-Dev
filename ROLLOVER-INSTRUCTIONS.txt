@@ -1,4 +1,4 @@
-SPRITE TRACKER — TREASURE HUNTERS ROLLOVER (DEV)
+SPRITE TRACKER — TREASURE HUNTERS ROLLOVER IMAGE FIX (DEV, v174)
 
 Upload these FIVE files to the ROOT of GlowState/Sprite-Checklist-Dev (main),
 replacing the files with the same names:
@@ -7,6 +7,14 @@ replacing the files with the same names:
   published-design.js
   index.html
   service-worker.js
+
+ALSO upload the entire published-assets folder from this ZIP to the
+repository's existing published-assets folder. Keep the folder structure:
+  published-assets/sprite-custom-jackrabbit-sprite-base.webp
+  published-assets/sprite-custom-tails-base.webp
+  ...and the other files in published-assets/
+This ZIP includes all currently referenced published artwork, so the
+archived Sprite cards will not depend on artwork missing from an earlier upload.
 
 Do NOT upload this bundle to GlowState/Real-Sprite-Checklist. That public
 repository runs a different version of the app and needs its own rollout.
@@ -21,6 +29,8 @@ WHAT CHANGES
 - Unlabeled legacy families retain their original Season 3 assignment;
   Season 4 families keep their Season 4 assignment.
 - Cache refreshes so browsers load the new catalog.
+- Fixes the displayed name to Peeky Peely (the internal saved ID stays intact).
+- Supplies artwork assets needed by the archived Sprite cards.
 
 IMPORTANT
 This update does not touch individual users' browser or cloud records.
