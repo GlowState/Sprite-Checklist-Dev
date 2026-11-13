@@ -15,7 +15,13 @@
   const CURRENT_SEASON_ID = seasonCatalog.some((season) => season.id === window.CURRENT_SPRITE_SEASON)
     ? window.CURRENT_SPRITE_SEASON
     : seasonCatalog[0].id;
-  const ARCHIVE_FALLBACK_SEASON_ID = seasonCatalog.find((season) => season.id !== CURRENT_SEASON_ID)?.id || CURRENT_SEASON_ID;
+  // Preserve the original legacy catalog assignment when introducing new seasons.
+  // Existing older families without an explicit season were already Season 3;
+  // choosing the "first retired season" here would silently move them to Season 4.
+  const ARCHIVE_FALLBACK_SEASON_ID = seasonCatalog.find((season) => season.id === 'chapter-7-season-3')?.id
+    || seasonCatalog[seasonCatalog.length - 1]?.id || CURRENT_SEASON_ID;
+  const LATEST_RETIRED_SEASON_ID = seasonCatalog.find((season) => season.id !== CURRENT_SEASON_ID)?.id
+    || ARCHIVE_FALLBACK_SEASON_ID;
   const SEASON_FEATURE_VISIBLE = true;
   const SEASON_VIEW_ALL = 'all';
   const APP_VIEW_TRACKER = 'tracker';
@@ -476,10 +482,10 @@
       const saved = localStorage.getItem(SEASON_VIEW_KEY);
       if (!SEASON_FEATURE_VISIBLE) return CURRENT_SEASON_ID;
       if (saved === 'current') return CURRENT_SEASON_ID;
-      if (saved === 'previous') return ARCHIVE_FALLBACK_SEASON_ID;
-      return SEASON_VIEWS.includes(saved) ? saved : ARCHIVE_FALLBACK_SEASON_ID;
+      if (saved === 'previous') return LATEST_RETIRED_SEASON_ID;
+      return SEASON_VIEWS.includes(saved) ? saved : LATEST_RETIRED_SEASON_ID;
     } catch {
-      return ARCHIVE_FALLBACK_SEASON_ID;
+      return LATEST_RETIRED_SEASON_ID;
     }
   }
 

@@ -1,0 +1,35 @@
+SPRITE TRACKER — TREASURE HUNTERS ROLLOVER (DEV)
+
+Upload these FIVE files to the ROOT of GlowState/Sprite-Checklist-Dev (main),
+replacing the files with the same names:
+  data.js
+  app.js
+  published-design.js
+  index.html
+  service-worker.js
+
+Do NOT upload this bundle to GlowState/Real-Sprite-Checklist. That public
+repository runs a different version of the app and needs its own rollout.
+
+WHAT CHANGES
+- New current season: Treasure Hunters (id: chapter-7-treasure-hunters).
+- Chapter 7 Season 4 and Season 3 become available as retired seasons in the
+  Sprite Archive. Old Sprite IDs, card data, images, collection records,
+  mastery records and rarity definitions are retained unchanged.
+- New season begins with zero catalog cards by design. Add new-season Sprite
+  groups/cards through the existing editor, then publish them as usual.
+- Unlabeled legacy families retain their original Season 3 assignment;
+  Season 4 families keep their Season 4 assignment.
+- Cache refreshes so browsers load the new catalog.
+
+IMPORTANT
+This update does not touch individual users' browser or cloud records.
+Their progress remains associated with the same family and variant IDs.
+Back up the repository and trial this on DEV before applying to public.
+Publishing new cards requires care not to reuse an old family/variant ID.
+Users' saved local edits and cloud sync cannot be verified from source alone.
+
+ROLLBACK
+A separate backup ZIP of the five original files was also created.
+Re-upload those originals to return the development tracker to its previous
+season configuration. Do not clear browser storage or cloud records.
